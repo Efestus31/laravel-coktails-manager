@@ -11,7 +11,17 @@ class Cocktail extends Model
     //we use fillable as protection
     protected $fillable =[
         'name',
-        'ingredients',
+        'description',
         'instructions',
+        'image',
+        'type_id',
     ];
+
+    public function type() {
+        return $this->belongsTo(Type::class);
+    }
+
+    public function ingredients(){
+        return $this->belongsToMany(Ingredient::class);
+    }
 }
