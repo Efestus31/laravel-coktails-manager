@@ -4,11 +4,12 @@
 
 @section('content')
     <div class="container">
-        <h1 class="mb-4"> Create a new Cocktail!</h1>
+        <h1 class="mb-4"> Create a new Cocktail! 🍸</h1>
 
+        {{-- Display validation errors --}}
         @if ($errors->any())
             <div class="alert alert-danger">
-                <strong>Oops!</strong> There are problems with the form data:<br><br>
+                <strong>Oops!</strong> There are some problems with your input:<br><br>
                 <ul>
                     @foreach ($errors->all as $error)
                         <li>{{ $error }}</li>
@@ -16,7 +17,7 @@
                 </ul>
             </div>
         @endif
-        {{-- Form  --}}
+        
         <form action="{{ route('cocktails.store') }}" method="POST">
             @csrf
 
