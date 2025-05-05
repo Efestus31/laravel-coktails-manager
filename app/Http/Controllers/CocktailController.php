@@ -6,6 +6,7 @@ use App\Models\Cocktail;
 use App\Models\Ingredient;
 use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class CocktailController extends Controller
 {
@@ -14,8 +15,7 @@ class CocktailController extends Controller
      */
     public function index()
     {
-        //get all the cocktails  with the data of the relationship
-        $cocktails = Cocktail::with('type', 'ingredients')->get();
+        $cocktails = Cocktail::with('type','ingredients')->paginate(6);
         return view('cocktails.index', compact('cocktails'));
     }
 
@@ -24,9 +24,9 @@ class CocktailController extends Controller
      */
     public function create()
     {
-        //get all the types and ingredients
         $types = Type::all();
         $ingredients = Ingredient::all();
+
         return view('cocktails.create', compact('types', 'ingredients'));
     }
 
@@ -35,34 +35,36 @@ class CocktailController extends Controller
      */
     public function store(Request $request)
     {
-        //validation of data of the form
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'instructions' => 'nullable|string',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|max:4096',
             'type_id' => 'required|exists:types,id',
             'ingredients' => 'array|exists:ingredients,id',
         ]);
 
-        $newCocktail = new Cocktail();
+        $cocktail = new Cocktail();
+        $cocktail->name = $data['name'];
+        $cocktail->description = $data['description'] ?? null;
+        $cocktail->instructions = $data['instructions'] ?? null;
+        $cocktail->type_id = $data['type_id'];
 
-        $newCocktail->name = $data['name'];
-        $newCocktail->description = $data['description'] ?? null;
-        $newCocktail->instructions = $data['instructions'] ?? null;
-        $newCocktail->image = $data['image'] ?? null;
-        $newCocktail->type_id = $data['type_id'];
-
-        $newCocktail->save();
-
-        //if there are ingredients, we link them
-        if(isset($data['ingredients'])) {
-            $newCocktail->ingredients()->attach($data['ingredients']);
+        // Save image binary to BLOB column
+        if ($request->hasFile('image')) {
+            $binary = file_get_contents($request->file('image')->getRealPath());
+            $cocktail->image_data = $binary;
         }
 
-        //redirect successfully message
-        return redirect()->route('cocktails.index')->with('success', 'Cocktail created successfully!');
+        $cocktail->save();
 
+        if (isset($data['ingredients'])) {
+            $cocktail->ingredients()->attach($data['ingredients']);
+        }
+
+        return redirect()
+            ->route('cocktails.show', $cocktail)
+            ->with('success', 'Cocktail creato con successo!');
     }
 
     /**
@@ -79,7 +81,6 @@ class CocktailController extends Controller
      */
     public function edit(Cocktail $cocktail)
     {
-        //gather all the types and ingredients available
         $types = Type::all();
         $ingredients = Ingredient::all();
 
@@ -97,27 +98,49 @@ class CocktailController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'instructions' => 'nullable|string',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|max:4096',
             'type_id' => 'required|exists:types,id',
             'ingredients' => 'array|exists:ingredients,id',
         ]);
 
-        $cocktail->name =$data['name'];
+        $cocktail->name = $data['name'];
         $cocktail->description = $data['description'] ?? null;
         $cocktail->instructions = $data['instructions'] ?? null;
-        $cocktail->image = $data['image'] ?? null;
         $cocktail->type_id = $data['type_id'];
+
+        // Update image blob if new file uploaded
+        if ($request->hasFile('image')) {
+            $binary = file_get_contents($request->file('image')->getRealPath());
+            $cocktail->image_data = $binary;
+        }
 
         $cocktail->save();
 
-        //update the links with the ingredients
-        if(isset($data['ingredients'])) {
+        if (isset($data['ingredients'])) {
             $cocktail->ingredients()->sync($data['ingredients']);
         }
 
-        //redirect with message
-        return redirect()->route('cocktails.index')->with('success', 'Cocktail updated successfully!');
+        return redirect()
+            ->route('cocktails.show', $cocktail)
+            ->with('success', 'Cocktail aggiornato con successo!');
+    }
 
+    /**
+     * Return the image BLOB with correct MIME-type and caching headers.
+     */
+    public function image(Cocktail $cocktail)
+    {
+        if (! $cocktail->image_data) {
+            abort(404);
+        }
+
+        $finfo = finfo_open();
+        $mime = finfo_buffer($finfo, $cocktail->image_data, FILEINFO_MIME_TYPE);
+        finfo_close($finfo);
+
+        return response($cocktail->image_data, 200)
+               ->header('Content-Type', $mime)
+               ->header('Cache-Control', 'public, max-age=86400');
     }
 
     /**
@@ -125,10 +148,11 @@ class CocktailController extends Controller
      */
     public function destroy(Cocktail $cocktail)
     {
-        //detach linked ingredients
         $cocktail->ingredients()->detach();
         $cocktail->delete();
 
-        return redirect()->route('cocktail.index')->with('success', 'Cocktail deleted successfully!');
+        return redirect()
+            ->route('cocktails.index')
+            ->with('success', 'Cocktail eliminato con successo!');
     }
 }

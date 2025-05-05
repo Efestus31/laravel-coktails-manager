@@ -13,7 +13,7 @@ class Cocktail extends Model
         'name',
         'description',
         'instructions',
-        'image',
+        'image_data',
         'type_id',
     ];
 
