@@ -26,10 +26,6 @@ Route::middleware('auth')->group(function () {
     // Resource routes for cocktails
     Route::resource('cocktails', CocktailController::class);
 
-    // Dedicated endpoint to serve the BLOB image
-    Route::get('cocktails/{cocktail}/image', [CocktailController::class, 'image'])
-        ->name('cocktails.image');
-
     // CRUD for Types e Ingredients
     Route::resource('types', TypeController::class);
     Route::resource('ingredients', IngredientController::class);
