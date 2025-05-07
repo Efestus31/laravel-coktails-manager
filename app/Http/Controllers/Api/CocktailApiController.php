@@ -15,12 +15,31 @@ class CocktailApiController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $perPage = $request->get('per_page', 12);
+         // 1. Leggi i parametri di filtro
+    $perPage           = $request->get('per_page', 12);
+    $typeFilter        = $request->get('type');        // es. /api/cocktails?type=3
+    $ingredientFilter  = $request->get('ingredient');  // es. /api/cocktails?ingredient=7
 
-        $paginator = Cocktail::with(['type', 'ingredients'])
-                             ->paginate($perPage);
+    // 2. Costruisci la query di base con le relazioni
+    $query = Cocktail::with(['type', 'ingredients']);
 
-        return CocktailResource::collection($paginator);
+    // 3. Applica il filtro per tipo (1-N)
+    if ($typeFilter) {
+        $query->where('type_id', $typeFilter);
+    }
+
+    // 4. Applica il filtro per ingrediente (N-N)
+    if ($ingredientFilter) {
+        $query->whereHas('ingredients', function ($q) use ($ingredientFilter) {
+            $q->where('ingredient_id', $ingredientFilter);
+        });
+    }
+
+    // 5. Esegui la paginazione
+    $paginator = $query->paginate($perPage);
+
+    // 6. Ritorna la collection di risorse
+    return CocktailResource::collection($paginator);
     }
 
     /**
