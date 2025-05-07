@@ -7,10 +7,11 @@ use App\Http\Controllers\Api\TypeApiController;
 use App\Http\Controllers\Api\IngredientApiController;
 use App\Http\Controllers\CocktailController;
 
-Route::name('api.')->group(function () {
 
-     Route::get('cocktails/{cocktail}/image', [CocktailController::class, 'image'])
-     ->name('cocktails.image');
+
+//Route::get('cocktails/{id}/image', [CocktailController::class, 'image']);
+
+Route::name('api.')->group(function () {
 
      // CRUD completo per i cocktail (inclusi index e show)
      Route::apiResource('cocktails', CocktailApiController::class)

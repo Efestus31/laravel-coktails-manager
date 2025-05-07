@@ -19,9 +19,11 @@ class CocktailResource extends JsonResource
             'name'         => $this->name,
             'description'  => $this->description,
             'instructions' => $this->instructions,
-            'type'         => ['id'=>$this->type->id,'name'=>$this->type->name] ?? null,
-            'ingredients'  => $this->ingredients->map(fn($i)=>['id'=>$i->id,'name'=>$i->name]),
-            'image_url'    => $this->image_data ? route('cocktails.image', $this->id) : null,
+            'type'         => ['id' => $this->type->id, 'name' => $this->type->name] ?? null,
+            'ingredients'  => $this->ingredients->map(fn($i) => ['id' => $i->id, 'name' => $i->name]),
+            'image_url' => $this->image_data
+                ? route('cocktails.image', $this->id)
+                : null,
             'created_at'   => $this->created_at,
             'updated_at'   => $this->updated_at,
         ];

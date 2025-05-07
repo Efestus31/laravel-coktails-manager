@@ -21,6 +21,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
+
+
+Route::get('cocktails/{cocktail}/image', [CocktailController::class, 'image'])
+     ->name('cocktails.image');
+
+
 // Cocktail routes (protected)
 Route::middleware('auth')->group(function () {
     // Resource routes for cocktails

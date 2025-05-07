@@ -140,7 +140,8 @@ class CocktailController extends Controller
 
         return response($cocktail->image_data, 200)
                ->header('Content-Type', $mime)
-               ->header('Cache-Control', 'public, max-age=86400');
+               ->header('Cache-Control', 'public, max-age=86400')
+               ->header('Access-Control-Allow-Origin', '*');
     }
 
     /**
