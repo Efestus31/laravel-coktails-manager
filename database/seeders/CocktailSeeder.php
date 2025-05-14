@@ -20,6 +20,10 @@ class CocktailSeeder extends Seeder
             Type::create(['name' => 'Aperitif']);
             Type::create(['name' => 'Long Drink']);
             Type::create(['name' => 'After Dinner']);
+            Type::create(['name' => 'Shots']);
+            Type::create(['name' => 'Digestif']);
+            Type::create(['name' => 'Mocktail']);
+            Type::create(['name' => 'Tiki']);
         }
 
         // Seed Ingredients
@@ -31,6 +35,13 @@ class CocktailSeeder extends Seeder
             Ingredient::create(['name' => 'Sugar Syrup']);
             Ingredient::create(['name' => 'Mint Leaves']);
             Ingredient::create(['name' => 'Triple Sec']);
+            Ingredient::create(['name' => 'Tequila']);
+            Ingredient::create(['name' => 'Whiskey']);
+            Ingredient::create(['name' => 'Campari']);
+            Ingredient::create(['name' => 'Vermouth Rosso']);
+            Ingredient::create(['name' => 'Orange Juice']);
+            Ingredient::create(['name' => 'Soda Water']);
+            Ingredient::create(['name' => 'Angostura Bitters']);
         }
 
         $typeIds = Type::pluck('id')->toArray();
